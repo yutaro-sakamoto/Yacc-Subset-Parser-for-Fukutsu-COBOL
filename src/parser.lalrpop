@@ -1,0 +1,70 @@
+use std::str::FromStr;
+use crate::ast::{Token, Rule};
+
+grammar;
+
+pub YaccParser: Vec<Rule<'a>> = {
+    Rule*
+    =>
+    <>
+}
+
+Rule: Rule<'a> = {
+    <left: id> colon pipe <tokensList: TokensList> semicolon
+    => Rule {
+        entry: left,
+        allow_empty: true,
+        tokens: tokensList
+    }
+    <left: id> colon <tokensList: TokensList> semicolon
+    => Rule {
+        entry: left,
+        allow_empty: false,
+        tokens: tokensList
+    }
+    <left: id> colon semicolon
+    => Rule {
+        entry: left,
+        allow_empty: false,
+        tokens: vec![]
+    }
+}
+
+TokensList: Vec<Vec<Token<'a>>> = {
+    <tokens: Tokens> pipe <tokensList: TokensList>
+    => {
+        tokensList.insert(0, token);
+        tokensList
+    }
+    <tokens: Token>
+    => vec![tokens]
+}
+
+Tokens: Vec<Token<'a>> = {
+    <token: Token> <tokens: Tokens>
+    => {
+        tokens.insert(0, token);
+        tokens
+    }
+    <token: Token>
+    => vec![token]
+}
+
+Token: Token = {
+    <id: id>
+    => Token::Id(id)
+    <string: string>
+    => Token::String(string)
+    <terminal: terminal>
+    => Token::Terminal(terminal)
+}
+
+match {
+    r":" => colon,
+    r"|" => pipe,
+    r";" => semicolon,
+    r"'[^']*'" => string,
+    r"[A-Z_][A-Z0-9_]*" => terminal,
+} else {
+    r"[a-zA-Z_][a-zA-Z_0-9]*" => id,
+}
