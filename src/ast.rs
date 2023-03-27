@@ -1,15 +1,19 @@
 pub struct Yacc<'a> {
-    pub rules: Vec<Rule<'a>>,
+    pub rules: Vec<YRule<'a>>,
 }
 
-pub struct Rule<'a> {
+pub struct YRule<'a> {
     pub entry: &'a str,
     pub allow_empty: bool,
-    pub tokens_list: Vec<Vec<Token<'a>>>,
+    pub tokens_list: Vec<YTokens<'a>>,
 }
 
-pub enum Token<'a> {
+pub struct YTokens<'a> {
+    pub tokens: Vec<YToken<'a>>,
+}
+
+pub enum YToken<'a> {
+    Id(&'a str),
     Terminal(&'a str),
-    NonTerminal(&'a str),
     String(&'a str),
 }
