@@ -1,5 +1,6 @@
 use std::str::FromStr;
 use crate::ast::*;
+use lalrpop_util::ErrorRecovery;
 
 grammar;
 
@@ -31,7 +32,7 @@ Rule: YRule<'input> = {
 }
 
 TokensList: Vec<YTokens<'input>> = {
-    <mut v:((<Tokens> pipe)*)> <tokens: Tokens> => {
+    <mut v:(<Tokens> pipe)*> <tokens: Tokens> => {
         v.push(tokens);
         v
     }
@@ -54,7 +55,7 @@ Token: YToken<'input> = {
 
 match {
     r":" => colon,
-    r"|" => pipe,
+    "|" => pipe,
     r";" => semicolon,
     r"'[^']*'" => str_literal,
     r"[A-Z_][A-Z0-9_]*" => terminal,
